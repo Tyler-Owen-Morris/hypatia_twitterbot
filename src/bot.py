@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import twitter_credentials as tc
 from time import sleep
 from datetime import datetime
+import random
 
 
 envpath = Path('.') / '.env'
@@ -47,15 +48,29 @@ def run_bot():
                 if eligible:
                     tweet = make_tweet(subject)
                     print("tweet this:", tweet)
-                    api.update_status(tweet)
+                    if len(tweet) > (280):
+                        tweets = split_tweet(tweet, max_length=(280))
+                        last_id = None
+                        for message in tweets:
+                            if last_id == None:
+                                status = api.update_status(message)
+                                last_id = status.__getattribute__('id')
+                            else:
+                                status = api.update_status(
+                                    message, in_reply_to_status_id=last_id)
+                                last_id = status.__getattribute__('id')
+                    else:
+                        api.update_status(tweet)
                 else:
                     print("tweeted about this subject too recently")
+                    sleep(60*5)
+                    continue
             else:
                 print("Bot could not find a subject to Tweet about")
-            sleep(60*10)
+            sleep(60*(random.randint(18, 35)))
         except Exception as e:
             print("error'd out:", e)
-            sleep(30)  # wait 30 seconds and try again
+            sleep(60*2)  # wait 30 seconds and try again
             continue
 
 
@@ -73,7 +88,7 @@ def reply_to_mentions(client_info):
         reply_user = tweet.__getattribute__('in_reply_to_user_id')
         send_user = tweet.__getattribute__('user')
         send_screenname = send_user.__getattribute__('screen_name')
-        print(send_screenname)
+        # print(send_screenname)
         #print("mention:", ttext)
         at_person = "@"+send_screenname+" "
         if str(tid) not in data:
@@ -96,7 +111,8 @@ def reply_to_mentions(client_info):
                 api.update_status(reply, in_reply_to_status_id=tid)
             data[tid] = [{"them": ttext, 'us': reply}]
         else:
-            print("we have already replied to this according to history")
+            # print("we have already replied to this according to history")
+            pass
         # save the conversation
         write_mentions_history(data)
 
@@ -123,7 +139,7 @@ def determine_tweetability(topics):
 def make_tweet(topic):
     completion = openai.ChatCompletion.create(
         model='gpt-3.5-turbo',
-        messages=[{"role": "system", "content": "You are a twitter bot. I will give you a popular subject, and you will generate a tweet relating that subject to web3 with the goal of generating as much traffic as possible. Ensure your tweets are within the character limit, and inspire users to reply. Reply with 'OK' if you understand"},
+        messages=[{"role": "system", "content": "You are a twitter bot. I will give you a popular subject, and you will generate a tweet relating that subject to web3 with the goal of generating as much traffic as possible. Ensure your tweets are within the character limit, and inspire users to reply. do not include quotes around your tweets. Reply with 'OK' if you understand"},
                   {"role": "assistant", "content": "OK"},
                   {"role": "user", "content": topic}]
     )
