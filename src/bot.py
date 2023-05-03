@@ -63,15 +63,25 @@ def run_bot():
                         api.update_status(tweet)
                 else:
                     print("tweeted about this subject too recently")
-                    sleep(60*5)
+                    vocal_sleeper(5, "Waiting to attempt not-repeated tweet.")
                     continue
             else:
                 print("Bot could not find a subject to Tweet about")
-            sleep(60*(random.randint(18, 35)))
+            vocal_sleeper(random.randint(18, 35),
+                          "Waiting to generate new tweet")
         except Exception as e:
             print("error'd out:", e)
-            sleep(60*2)  # wait 30 seconds and try again
+            # wait 30 seconds and try again
+            vocal_sleeper(2, "Waiting to resume after error")
             continue
+
+
+def vocal_sleeper(sleeptime, wait_reason):
+    for remaining in range(sleeptime, 0, -1):
+        print(f"{remaining} minute(s) remaining before resuming - {wait_reason}")
+        sleep(60)
+
+    print(f"Resuming behavior.")
 
 
 def reply_to_mentions(client_info):
@@ -122,6 +132,7 @@ def get_trending():
     trending = []
     for trend in trends[0]["trends"]:
         trending.append(trend["name"])
+    print("trending subjects", trending)
     return trending
 
 
@@ -133,6 +144,7 @@ def determine_tweetability(topics):
                   {"role": "user", "content": ", ".join(topics)}]
     )
     resp = completion.choices[0].message.content
+    print("Tweetability reply:", resp)
     return resp
 
 
@@ -192,7 +204,7 @@ def load_subject_history():
 
 def determine_subject(trending, subj_str):
     for trend in trending:
-        if trend in subj_str:
+        if subj_str in trend:
             return trend
     return None
 
