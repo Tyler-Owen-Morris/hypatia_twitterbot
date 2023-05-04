@@ -8,6 +8,7 @@ import twitter_credentials as tc
 from time import sleep
 from datetime import datetime
 import random
+import pandas as pd
 
 
 envpath = Path('.') / '.env'
@@ -43,53 +44,74 @@ def reply_to_mentions(client_info):
     # load info about who I am
     my_id = client_info.__getattribute__('id')
     # load historical conversations from disk
-    response = api.mentions_timeline(count=20)
+    data_ref = load_primed_data()
+    # fetch reply history
+    response = api.mentions_timeline(count=100, tweet_mode="extended")
     for tweet in response:
         # we do this each loop so we can write at the end of the loop
         data = load_mentions_history()
         # Load data about this tweet from the Status object in the array returned
         tid = tweet.__getattribute__('id')
-        ttext = tweet.__getattribute__('text')
+        ttext = tweet.__getattribute__('full_text')
         reply_user = tweet.__getattribute__('in_reply_to_user_id')
         send_user = tweet.__getattribute__('user')
         send_screenname = send_user.__getattribute__('screen_name')
-        # print(send_screenname)
-        #print("mention:", ttext)
+        print(send_screenname)
+        print("mention:", ttext)
         at_person = "@"+send_screenname+" "
         if str(tid) not in data:
+            # determine subject of tweet
+            subj = determine_tweet_subject(ttext, list(data_ref.keys()))
+            mysubj = determine_subject(subj)
             # reply to the person
-            reply = make_reply_tweet(ttext)  # "@"+send_screenname+" "
+            reply = make_reply_tweet(ttext, mysubj)  # "@"+send_screenname+" "
             print("reply tweet:", reply)
-            if len(reply) > (280 - len(at_person)):
-                replies = split_tweet(reply, max_length=(280 - len(at_person)))
-                last_id = None
-                for repl in replies:
-                    if last_id == None:
-                        status = api.update_status(
-                            at_person+repl, in_reply_to_status_id=tid)
-                        last_id = status.__getattribute__('id')
-                    else:
-                        status = api.update_status(
-                            at_person+repl, in_reply_to_status_id=last_id)
-                        last_id = status.__getattribute__('id')
-            else:
-                api.update_status(at_person+repl, in_reply_to_status_id=tid)
-            data[tid] = [{"them": ttext, 'us': reply}]
+            # if len(reply) > (280 - len(at_person)):
+            #     replies = split_tweet(reply, max_length=(280 - len(at_person)))
+            #     last_id = None
+            #     for repl in replies:
+            #         if last_id == None:
+            #             status = api.update_status(
+            #                 at_person+repl, in_reply_to_status_id=tid)
+            #             last_id = status.__getattribute__('id')
+            #         else:
+            #             status = api.update_status(
+            #                 at_person+repl, in_reply_to_status_id=last_id)
+            #             last_id = status.__getattribute__('id')
+            # else:
+            #     api.update_status(at_person+repl, in_reply_to_status_id=tid)
+            data[tid] = {"sender": send_screenname,
+                         "subject": mysubj, "tweet_text": ttext, 'reply': at_person+reply}
         else:
-            # print("we have already replied to this according to history")
+            print("we have already replied to this according to history")
             pass
         # save the conversation
         write_mentions_history(data)
 
 
-def make_reply_tweet(topic):
+def determine_subject(subj):
+    loaded = load_primed_data()
+    for subject in list(loaded.keys()):
+        if subj in subject:
+            return subject
+    return None
+
+
+def make_reply_tweet(tweet, subj):
+    if subj != None:
+        loaded_data = load_primed_data()[subj]
+    else:
+        loaded_data = ""
     completion = openai.ChatCompletion.create(
         model='gpt-3.5-turbo',
-        messages=[{"role": "system", "content": "You are a twitter bot. I will give you the text of someone tweeting at you, and you will generate a reply. Your goal is to answer questions around web3 technologies, support community developers, and encourage new interest in web3. You will do your best to be nice to others, and carry on a respectful conversation. your character limit is 250 - you must never use more characters than 250. Reply with 'OK' if you understand"},
+        messages=[{"role": "system", "content": "You are a twitter bot. You will be fed all the relevant data you need on a subject, and a user tweet. you will reply with the most informative and helpful response possible. reply with 'OK' if you understand."},
                   {"role": "assistant", "content": "OK"},
-                  {"role": "user", "content": topic}]
+                  {"role": "system", "content": f"Data: {loaded_data}"},
+                  {"role": "user", "content": tweet}]
     )
     resp = completion.choices[0].message.content
+    print("attempting to reply with primers:", loaded_data)
+    print("response is: ", resp)
     return resp
 
 
@@ -104,6 +126,18 @@ def load_mentions_history():
         data = json.load(json_file)
     # returns a dictionary of the historical tweets
     return data
+
+
+def load_primed_data():
+    file_name = "data/primed_data.json"
+    try:
+        # Read the file data
+        with open(file_name, "r") as json_file:
+            data = json.load(json_file)
+        # returns a dictionary of the historical tweets
+        return data
+    except:
+        return {}
 
 
 def write_mentions_history(data):
@@ -163,19 +197,24 @@ def determine_subject_eligibility(subj):
     return ret
 
 
+def determine_tweet_subject(tweet, subjects):
+    subjs = ",".join(subjects)
+    completion = openai.ChatCompletion.create(
+        model='gpt-3.5-turbo',
+        messages=[{"role": "system", "content": f"You are a classification bot. The user will feed you a tweet and you will return which subject it belongs to with ONLY the name of the subject. The only eligible subjects are: {subjs}. you will not elaborate. you will not add extra words. You will JUST reply with the single subject. Reply with 'ok' if you understand."},
+                  {"role": "assistant", "content": "OK"},
+                  {"role": "user", "content": tweet}]
+    )
+    resp = completion.choices[0].message.content
+    print("bot thinks this tweet is to do with this subject:", resp)
+    return resp
+
+
 def vocal_sleeper(sleeptime, wait_reason):
     for remaining in range(sleeptime, 0, -1):
         print(f"{remaining} minute(s) remaining before resuming - {wait_reason}")
         sleep(60)
-
     print(f"Resuming behavior.")
-
-
-def load_ml_primers():
-    file_name = "data/primed_data.json"
-    with open(file_name, "r") as json_file:
-        data = json.load(json_file)
-    return data
 
 
 if __name__ == "__main__":
