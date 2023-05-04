@@ -22,7 +22,6 @@ openai.api_key = tc.OPENAI_KEY
 auth = OAuthHandler(tc.CONSUMER_KEY, tc.CONSUMER_SECRET)
 auth.set_access_token(tc.ACCESS_TOKEN, tc.ACCESS_TOKEN_SECRET)
 api = API(auth, wait_on_rate_limit=True)
-last_sub = ''
 
 
 def run_bot():
@@ -32,47 +31,11 @@ def run_bot():
     while True:
         try:
             reply_to_mentions(client_info)
-            # Query Twitter for trending topics
-            trending = get_trending()
-            # print(trending)
-            # Determine if a tweet can be made
-            determined = determine_tweetability(trending)
-            # print(determined)
-            # If so, generate a tweet on the corresponding topic, and make that tweet
-            det = determined.split(" - ")[0]
-            subj_str = determined.split(" - ")[-1]
-            subject = determine_subject(trending, subj_str)
-            print("determined:", det, " | subject:", subject)
-            if subject != None and det == 'YES':
-                eligible = determine_subject_eligibility(subject)
-                if eligible:
-                    tweet = make_tweet(subject)
-                    print("tweet this:", tweet)
-                    if len(tweet) > (280):
-                        tweets = split_tweet(tweet, max_length=(280))
-                        last_id = None
-                        for message in tweets:
-                            if last_id == None:
-                                status = api.update_status(message)
-                                last_id = status.__getattribute__('id')
-                            else:
-                                status = api.update_status(
-                                    message, in_reply_to_status_id=last_id)
-                                last_id = status.__getattribute__('id')
-                    else:
-                        api.update_status(tweet)
-                else:
-                    print("tweeted about this subject too recently")
-                    vocal_sleeper(5, "Waiting to attempt not-repeated tweet.")
-                    continue
-            else:
-                print("Bot could not find a subject to Tweet about")
-            vocal_sleeper(random.randint(18, 35),
-                          "Waiting to generate new tweet")
+            vocal_sleeper(1, "sleeping after replying")
         except Exception as e:
             print("error'd out:", e)
             # wait 30 seconds and try again
-            vocal_sleeper(2, "Waiting to resume after error")
+            vocal_sleeper(1, "Waiting to resume after error")
             continue
 
 
@@ -127,38 +90,6 @@ def reply_to_mentions(client_info):
         write_mentions_history(data)
 
 
-def get_trending():
-    trends = api.get_place_trends(id=23424977)
-    trending = []
-    for trend in trends[0]["trends"]:
-        trending.append(trend["name"])
-    print("trending subjects", trending)
-    return trending
-
-
-def determine_tweetability(topics):
-    completion = openai.ChatCompletion.create(
-        model='gpt-3.5-turbo',
-        messages=[{"role": "system", "content": "You are a classification bot. You will take in a comma separated list of trending twitter topics, and determine if you can make a tweet about any of those subjects and relate the subject to web3. If you can make the tweet reply 'YES' followed by the subject you have selected separated by the strin ' - '. If you cannot make the tweet, you will reply ONLY with the string 'NO '. All responses must start with the characters 'YES' or 'NO '. You will only answer 'YES' followed by ' - ' and the subject, or 'NO ' - you will not categorize all of the subjects. Reply 'OK' if you understand."},
-                  {"role": "assistant", "content": "OK"},
-                  {"role": "user", "content": ", ".join(topics)}]
-    )
-    resp = completion.choices[0].message.content
-    print("Tweetability reply:", resp)
-    return resp
-
-
-def make_tweet(topic):
-    completion = openai.ChatCompletion.create(
-        model='gpt-3.5-turbo',
-        messages=[{"role": "system", "content": "You are a twitter bot. I will give you a popular subject, and you will generate a tweet relating that subject to web3 with the goal of generating as much traffic as possible. Ensure your tweets are within the character limit, and inspire users to reply. do not include quotes around your tweets. Reply with 'OK' if you understand"},
-                  {"role": "assistant", "content": "OK"},
-                  {"role": "user", "content": topic}]
-    )
-    resp = completion.choices[0].message.content
-    return resp
-
-
 def make_reply_tweet(topic):
     completion = openai.ChatCompletion.create(
         model='gpt-3.5-turbo',
@@ -187,26 +118,6 @@ def write_mentions_history(data):
     file_name = "data/mentions.json"
     with open(file_name, "w") as json_file:
         json.dump(data, json_file)
-
-
-def load_subject_history():
-    file_name = f"data/history.json"
-    # Write the empty file if it doesn't exist
-    if not os.path.exists(file_name):
-        with open(file_name, "w") as json_file:
-            json.dump({}, json_file)
-    # Read the file data
-    with open(file_name, "r") as json_file:
-        data = json.load(json_file)
-    # returns a dictionary of the historical tweets
-    return data
-
-
-def determine_subject(trending, subj_str):
-    for trend in trending:
-        if subj_str in trend:
-            return trend
-    return None
 
 
 def split_tweet(text, max_length=280):
