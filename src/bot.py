@@ -39,14 +39,6 @@ def run_bot():
             continue
 
 
-def vocal_sleeper(sleeptime, wait_reason):
-    for remaining in range(sleeptime, 0, -1):
-        print(f"{remaining} minute(s) remaining before resuming - {wait_reason}")
-        sleep(60)
-
-    print(f"Resuming behavior.")
-
-
 def reply_to_mentions(client_info):
     # load info about who I am
     my_id = client_info.__getattribute__('id')
@@ -81,7 +73,7 @@ def reply_to_mentions(client_info):
                             at_person+repl, in_reply_to_status_id=last_id)
                         last_id = status.__getattribute__('id')
             else:
-                api.update_status(reply, in_reply_to_status_id=tid)
+                api.update_status(at_person+repl, in_reply_to_status_id=tid)
             data[tid] = [{"them": ttext, 'us': reply}]
         else:
             # print("we have already replied to this according to history")
@@ -169,6 +161,21 @@ def determine_subject_eligibility(subj):
     with open(file_name, "w") as json_file:
         json.dump(data, json_file)
     return ret
+
+
+def vocal_sleeper(sleeptime, wait_reason):
+    for remaining in range(sleeptime, 0, -1):
+        print(f"{remaining} minute(s) remaining before resuming - {wait_reason}")
+        sleep(60)
+
+    print(f"Resuming behavior.")
+
+
+def load_ml_primers():
+    file_name = "data/primed_data.json"
+    with open(file_name, "r") as json_file:
+        data = json.load(json_file)
+    return data
 
 
 if __name__ == "__main__":
