@@ -44,7 +44,8 @@ def reply_to_mentions(client_info):
     # load historical conversations from disk
     data_ref = load_primed_data()
     # fetch reply history
-    response = api.mentions_timeline(count=200, tweet_mode="extended")
+    response = api.mentions_timeline(
+        count=200, tweet_mode="extended", since_id=1652826852988436481)
     # Read the file data
     # file_name = "data/sample_inputs.json"
     # with open(file_name, "r") as json_file:
@@ -80,20 +81,22 @@ def reply_to_mentions(client_info):
                 # "@"+send_screenname+" "
                 reply = make_reply_tweet(ttext, mysubj)
                 print("reply tweet:", reply)
-                # if len(reply) > (280 - len(at_person)):
-                #     replies = split_tweet(reply, max_length=(280 - len(at_person)))
-                #     last_id = None
-                #     for repl in replies:
-                #         if last_id == None:
-                #             status = api.update_status(
-                #                 at_person+repl, in_reply_to_status_id=tid)
-                #             last_id = status.__getattribute__('id')
-                #         else:
-                #             status = api.update_status(
-                #                 at_person+repl, in_reply_to_status_id=last_id)
-                #             last_id = status.__getattribute__('id')
-                # else:
-                #     api.update_status(at_person+repl, in_reply_to_status_id=tid)
+                if len(reply) > (280 - len(at_person)):
+                    replies = split_tweet(
+                        reply, max_length=(280 - len(at_person)))
+                    last_id = None
+                    for repl in replies:
+                        if last_id == None:
+                            status = api.update_status(
+                                at_person+repl, in_reply_to_status_id=tid)
+                            last_id = status.__getattribute__('id')
+                        else:
+                            status = api.update_status(
+                                at_person+repl, in_reply_to_status_id=last_id)
+                            last_id = status.__getattribute__('id')
+                else:
+                    api.update_status(
+                        at_person+repl, in_reply_to_status_id=tid)
                 data[tid] = {"sender": send_screenname,
                              "subject": mysubj, "tweet_text": ttext, 'reply': at_person+reply}
         else:
