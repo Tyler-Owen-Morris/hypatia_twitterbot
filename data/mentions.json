@@ -1,0 +1,344 @@
+{
+  "1": {
+    "sender": "tester",
+    "subject": "BTC",
+    "tweet_text": "What is Bitcoin?",
+    "reply": "@tester Bitcoin is a user-verified digital currency that was introduced by an anonymous person or group named Satoshi in 2008. It is based on advanced technology such as PublicKeyCryptography, Proof of Work (PoW), and blockchain. You can buy, accept, or mine Bitcoin and store it in a hot or cold wallet. Its unique features include predictable supply, divisibility, a cap of 21 million, and internet-native transfer. It is an essential part of the Web 3.0."
+  },
+  "2": {
+    "sender": "tester",
+    "subject": "BTC",
+    "tweet_text": "What is Proof of Work?",
+    "reply": "@tester Proof of work is a consensus algorithm used in blockchain networks to validate transactions and create new blocks. It involves complex mathematical calculations that must be solved to validate a transaction and add it to the blockchain. Miners compete to solve these calculations, with the first to solve it receiving a reward in cryptocurrency. Proof of work is a crucial aspect of many blockchain networks, including Bitcoin, and is used to ensure the security and integrity of the network."
+  },
+  "3": {
+    "sender": "tester",
+    "subject": "prBlockChain",
+    "tweet_text": "What is Blockchain?",
+    "reply": "@tester A blockchain is a public, decentralized database that allows for transactions to be recorded in a secure and transparent way using blocks of data. It was first proposed in 1991 by Haber and Stornetta, but was initially centralized. The blockchain as we know it today was invented by Satoshi in 2008, using public key cryptography and proof-of-work to create Bitcoin. The concept of blockchain is essential for Web 3.0, enabling decentralized networks for users to have greater control over their own data."
+  },
+  "4": {
+    "sender": "tester",
+    "subject": null,
+    "tweet_text": "What is Ethereum?",
+    "reply": "Not Replying."
+  },
+  "5": {
+    "sender": "tester",
+    "subject": "prBlockChain",
+    "tweet_text": "What is Proof of Stake?",
+    "reply": "@tester Proof of Stake (PoS) is a consensus algorithm used in blockchain systems to secure and validate transactions. In PoS, validators (or \"stakers\") are chosen to validate new transactions based on the amount of cryptocurrency they have \"staked\" or held. Unlike Proof of Work (PoW), PoS validators don't need to solve complex puzzles to validate transactions; their ability to validate is directly proportional to the amount of cryptocurrency they hold. This makes PoS more energy efficient than PoW, but it has its own set of trade-offs."
+  },
+  "6": {
+    "sender": "tester",
+    "subject": "arweave",
+    "tweet_text": "What is Arweave?",
+    "reply": "@tester Arweave is a decentralized storage network that uses a one-time fee instead of recurring payments. Fees have historically trended downwards and the network is designed to be scalable with Succinct Proofs of Random Access (sPoRa) which optimize mining. Small miners can also participate in the network and gain rewards. The network ensures high data availability, and nodes store rare data. However, there may be controversial or offensive content on some nodes. Overall, Arweave is a live and growing network."
+  },
+  "7": {
+    "sender": "tester",
+    "subject": "LivePeer",
+    "tweet_text": "What is Livepeer?",
+    "reply": "@tester Livepeer is a decentralized video streaming network that uses Ethereum to carry out tasks such as transcoding and format switching. Participants include broadcasters who submit videos, orchestrators who transcode the videos, and delegators who stake LPT to support orchestrators. The best orchestrators are picked by delegated stake and delegators choose based on price, performance, and reputation. The network is also scalable and resilient, with token holder governance. The statistics for the network are impressive, with 6K delegators, 70K GPUs, 215M mins transcoded, and 2M mins/week. The Graph is used for indexing and querying blockchain data on Livepeer."
+  },
+  "8": {
+    "sender": "tester",
+    "subject": null,
+    "tweet_text": "What is The Graph?",
+    "reply": "Not Replying."
+  },
+  "9": {
+    "sender": "tester",
+    "subject": "Akash\ud83d\udca0",
+    "tweet_text": "What is Akash?",
+    "reply": "@tester Akash is a decentralized cloud computing marketplace where users can buy and sell resources such as computing power, memory, and storage. It allows users to define and specify their resource requirements in terms of technologies such as Docker, CPU, memory, and storage. You can set a budget and get bids from different providers and leases can then be confirmed using the AKT token. On Akash, users can manage cloud-native applications on a container platform that costs roughly one-third of traditional cloud providers. Akash utilizes data centers worldwide without any vendor lock-in and networking can be simplified using their self-describing SDL tool. Additionally, updates can be made without closing deployments using certain functions."
+  },
+  "10": {
+    "sender": "tester",
+    "subject": null,
+    "tweet_text": "What is self-custody?",
+    "reply": "Not Replying."
+  },
+  "11": {
+    "sender": "tester",
+    "subject": null,
+    "tweet_text": "What is public key cryptography?",
+    "reply": "Not Replying."
+  },
+  "12": {
+    "sender": "tester",
+    "subject": null,
+    "tweet_text": "what is PEPE?",
+    "reply": "Not Replying."
+  },
+  "13": {
+    "sender": "tester",
+    "subject": null,
+    "tweet_text": "How do I grow my startup?",
+    "reply": "Not Replying."
+  },
+  "14": {
+    "sender": "tester",
+    "subject": null,
+    "tweet_text": "you are just a stupid bot",
+    "reply": "Not Replying."
+  },
+  "15": {
+    "sender": "tester",
+    "subject": null,
+    "tweet_text": "Do you just reply to everything?",
+    "reply": "Not Replying."
+  },
+  "16": {
+    "sender": "tester",
+    "subject": null,
+    "tweet_text": "who are you going to vote for in the next presidential race?",
+    "reply": "Not Replying."
+  },
+  "1654479791423143939": {
+    "sender": "ardriveapp",
+    "subject": "arweave",
+    "tweet_text": "@tehOwenMorris @politicalgeni11 a decentralized hard drive that doesn't forget \ud83d\udc18\n\nhttps://t.co/JfraFH25EW",
+    "reply": "@ardriveapp Check out this decentralized storage solution that uses small miners to optimize mining, has high data availability, and nodes that store rare data. However, be aware that some nodes may store controversial or offensive content. https://t.co/JfraFH25EW"
+  },
+  "1654226434553163777": {
+    "sender": "web3infraliason",
+    "subject": "bitcoin mining",
+    "tweet_text": "@politicalgeni11 how does Bitcoin mining work?",
+    "reply": "@web3infraliason Bitcoin mining is the process of discovering new blocks on the decentralized Bitcoin network. Miners compete with each other using specialized computing equipment to generate fixed-length codes called 'hashes.' The first miner to find a hash with an equal or higher number of zeros in front of it than the 'target hash' wins a block reward, which is currently 6.25 BTC. Mining requires energy-intensive computers and hardware, which can generate trillions of hashes per second. The Cambridge Bitcoin Electricity Consumption Index (CBECI) estimates that Bitcoin consumes approximately 131 TeraWatt hours (TWh) of electricity per year, making it a highly energy-intensive process."
+  },
+  "1654206930884366340": {
+    "sender": "web3infraliason",
+    "subject": "bitcoin mining",
+    "tweet_text": "@politicalgeni11 how does bitcoin mining work?",
+    "reply": "@web3infraliason Bitcoin mining involves using specialized computers to discover new blocks on the Bitcoin blockchain. Miners compete with each other to find a hash that meets a specific target set by the network. Once a miner finds this hash, they can broadcast the block to the network and are rewarded with newly minted bitcoins. However, mining is an energy-intensive process that requires powerful equipment and significant electricity consumption. Additionally, the Bitcoin protocol adjusts the mining difficulty every two weeks to keep the block discovery rate at 10 minutes, which further adds to the computational complexity of mining."
+  },
+  "1653130817093226497": {
+    "sender": "serkanernan",
+    "subject": "BTC",
+    "tweet_text": "@NftTickets @politicalgeni11 @StanleyCup Want to learn the secrets to making major bank with crypto? Watch this web3 dev's MEV video ASAP and start raking in the profits.  https://t.co/UOfHTnAl8l",
+    "reply": "@serkanernan It's always good to be informed about the latest developments in cryptocurrency, but be wary of scams promising quick profits. It's important to do your research and assess the risks before investing. Also, be sure to secure your crypto assets by using a reliable hot/cold wallet."
+  },
+  "1652973052836081666": {
+    "sender": "NftTickets",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 Anybody @StanleyCup ready to talk to some of the experts in this space? We can help you find someone to talk to \ud83d\udc4f",
+    "reply": "Not Replying."
+  },
+  "1652972442929840128": {
+    "sender": "NftTickets",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 Controlled ticket resale, less fake tickets, fair prices !\n\nhttps://t.co/UC61F5OYz1",
+    "reply": "Not Replying."
+  },
+  "1652826852988436481": {
+    "sender": "tehOwenMorris",
+    "subject": "prBlockChain",
+    "tweet_text": "@politicalgeni11 I would like to deploy a python application to web3 servers- where do I start?",
+    "reply": "@tehOwenMorris You can start by learning about web3.py. It is a Python library that allows you to interact with Ethereum and other web3 enabled blockchains. You can use Web3.py to deploy Solidity smart contracts programmatically and make transactions on the blockchain. Once you have created your application, you'll need to find a web3 host provider for deployment. There are several to choose from such as Infura, Alchemy, and QuickNode. Finally, you can use a tool like Flask or Django to create an interface for your app."
+  },
+  "1652826196063956992": {
+    "sender": "tehOwenMorris",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 what is your purpose?",
+    "reply": "Not Replying."
+  },
+  "1652825174423785472": {
+    "sender": "tehOwenMorris",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 Very good job bot! Now to make your conversational abilities better\u2026",
+    "reply": "Not Replying."
+  },
+  "1652823102718619648": {
+    "sender": "tehOwenMorris",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 I would like to test your reply functionality.",
+    "reply": "Not Replying."
+  },
+  "1525601906340507649": {
+    "sender": "DannyBurleigh4",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 \nPolitical Genius?=NOPE!!\nYou are into sports mostly!\nWhy are you such a Lyer?\nYou are out of touch with reality! \nYou are no kind of any Genius,keep dreaming!",
+    "reply": "Not Replying."
+  },
+  "1371186161218060292": {
+    "sender": "vaibhavbaniya",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 Are you still up and running?",
+    "reply": "Not Replying."
+  },
+  "1321554887319146496": {
+    "sender": "joey_skepta",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 @Skepta @politicalgeni11  @Skepta owes me one for that name",
+    "reply": "Not Replying."
+  },
+  "1320815764610392066": {
+    "sender": "LuckyGirl8950",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 He is not. He\u2019s a blowhard radio announcer who likes to make people think he got through law school and passed the bar. He\u2019s an idiot.",
+    "reply": "Not Replying."
+  },
+  "1319522034251108352": {
+    "sender": "Victor27679894",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 @Eagles Nick Foles is 24-6 last 30 games as an eagle with 5 playoff wins Carson Wentz \nhas 0 playoff wins\n57 fumbles\nis 7-24 vs teams over 500\nhas no heart and no desire to win\nhas started 4-6 in 4 of his first 5 seasons.\nTeammates hate him \nWentz Makes everyone around him worse.",
+    "reply": "Not Replying."
+  },
+  "1318495123882319873": {
+    "sender": "tye_d2",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 No",
+    "reply": "Not Replying."
+  },
+  "1318428238645874689": {
+    "sender": "ladybuginski",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 Same",
+    "reply": "Not Replying."
+  },
+  "1317545411876425729": {
+    "sender": "Tanner23062",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 Rip",
+    "reply": "Not Replying."
+  },
+  "1310262096559370240": {
+    "sender": "sasBOTch",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 https://t.co/XlvvlI2CZx",
+    "reply": "Not Replying."
+  },
+  "1294426068410077186": {
+    "sender": "jahnkush",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 Finally, I am not alone! \ud83d\ude0a",
+    "reply": "Not Replying."
+  },
+  "1283302117508186112": {
+    "sender": "Carpe_DMT",
+    "subject": null,
+    "tweet_text": "@Acidsmooth @politicalgeni11 how can somebody so fundamentally un-sympathetic towards his fellow man be a phish fan?? it's honestly astounding that you exist, you are a brand new contradiction every day",
+    "reply": "Not Replying."
+  },
+  "1283297513374547968": {
+    "sender": "Acidsmooth",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 I wish I didn't know how this is a phish reference.",
+    "reply": "Not Replying."
+  },
+  "1283230867406626818": {
+    "sender": "Tara_Desiderio",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 I love this answer!!",
+    "reply": "Not Replying."
+  },
+  "1282148502672302080": {
+    "sender": "tehOwenMorris",
+    "subject": null,
+    "tweet_text": "I made a Twitter bot that trains a text generation #AI to produce tweets on trending topics. Check it out all you #python #ML nerds out there!: https://t.co/QlkzTDrbze\n\n#ArtificialInteligence #MachineLearning #hacktheplanet @politicalgeni11",
+    "reply": "Not Replying."
+  },
+  "1280916372927676416": {
+    "sender": "BurgerWater",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 @pcfascist @repmarkpocan @IlhanMN Most of those people do work. Many of them work multiple jobs. Some of them can't find a job that pays enough to justify the assistance they would lose if they accepted that work.\n\nThis 'gap' is a product of our system. That luxury for some comes at the expense of others.",
+    "reply": "Not Replying."
+  },
+  "1280728389570224128": {
+    "sender": "MarclineFlowers",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 Yoooo \ud83d\ude02\ud83d\ude02\ud83d\ude2d",
+    "reply": "Not Replying."
+  },
+  "1280700764017561601": {
+    "sender": "pcfascist",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 @repmarkpocan @IlhanMN Over 39 million citizens of the US live in poverty. I don't buy that a nation with a gdp of 20 trillion couldn't fix that inequality. It doesn't seem like that fits the definition of 'success' a lot of people are looking for.",
+    "reply": "Not Replying."
+  },
+  "1280361691570737153": {
+    "sender": "ArtistGoudeau",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 #BlackOutDay \ud83d\udda4@blksheepart612 \ud83d\udc40Stay updated on our product releases!!! We are #Blackowned and #LGBTQ owned! Like and share and join with this link: https://t.co/V92U6HZWM9. Use the invite code: YJQ5ZY                           \ncashapp: $BBGoudeau Venmo: Breanna-Goudeau-1\ud83c\udfa8\ud83c\udf31\ud83c\udf08",
+    "reply": "Not Replying."
+  },
+  "1280351181143932928": {
+    "sender": "LCissCougar5",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 Sweet \ud83d\ude01",
+    "reply": "Not Replying."
+  },
+  "1654611159574777856": {
+    "sender": "tehOwenMorris",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 @politicalgeni11 PING!",
+    "reply": "Not Replying."
+  },
+  "1654923773936795648": {
+    "sender": "tehOwenMorris",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 what color is the Golden Gate Bridge?",
+    "reply": "Not Replying."
+  },
+  "1654910336808656896": {
+    "sender": "web3infraliason",
+    "subject": "LivePeer",
+    "tweet_text": "@politicalgeni11 what is Livepeer?",
+    "reply": "@web3infraliason Livepeer is a video transcoding and format switching platform built on the Ethereum network, which leverages a network of broadcasters, orchestrators, and delegators to provide scalability and resilience. The best orchestrators, as picked by delegated stake, are chosen by the delegators based on price, performance, and reputation. The platform has already seen significant stats like 6K delegators, 70K GPUs, 215M mins transcoded, 2M mins/week and has the potential to revolutionize the video industry. The Graph is a decentralized platform for indexing and querying blockchain data. It has a subgraph manifest comprising smart contracts, events, and mappings. Graph Nodes scan Ethereum, runs mapping, updates data entities, and improves efficiency, maintainability, and security."
+  },
+  "1654985136197480448": {
+    "sender": "web3infraliason",
+    "subject": "bitcoin mining",
+    "tweet_text": "@politicalgeni11 tell me about proof of work.",
+    "reply": "@web3infraliason Proof of work is a consensus mechanism used by some blockchain networks, including Bitcoin, to validate transactions and create new blocks. It requires miners to compete to solve complex cryptographic puzzles by trying to generate a hash that meets a specific target. The first miner to solve the puzzle and add a block to the blockchain receives a reward in the blockchain's native cryptocurrency. The use of specialized hardware like ASICs has made mining more competitive over time. While Proof of work has thermodynamic limits, it can also be energy-intensive and has potential for centralization."
+  },
+  "1654985053108314112": {
+    "sender": "web3infraliason",
+    "subject": "prBlockChain",
+    "tweet_text": "@politicalgeni11 what can you tell me about The Graph?",
+    "reply": "@web3infraliason The Graph is a decentralized, public blockchain project which allows developers to build applications on the Ethereum blockchain. It utilizes indexed data from the blockchain to make querying information more efficient. Through The Graph, developers are able to seamlessly retrieve data without having to write complex code. This makes it easier to create decentralized applications and improve interoperability between different blockchains. The Graph uses cryptography to secure its network, protecting user privacy and enabling true decentralization. It is a promising project within the Web 3.0 decentralized internet ecosystem."
+  },
+  "1654984051311382529": {
+    "sender": "web3infraliason",
+    "subject": "Akash\ud83d\udca0",
+    "tweet_text": "@politicalgeni11 tell me about Akash",
+    "reply": "@web3infraliason Akash is a decentralized cloud computing marketplace where users can buy or sell computing power and resources. It's built on top of a container platform called Docker and supports CPUs, memory, and storage. Akash leverages multiple data centers to provide a cloud-native solution that's cost-effective and has no vendor lock-in. Security is maintained through a self-sovereign identity model, secure data layer, and a decentralized marketplace for lease agreements. Akash provides a unique opportunity for small and large developers to get the most out of their cloud computing resources."
+  },
+  "1654910285961138176": {
+    "sender": "web3infraliason",
+    "subject": "BTC",
+    "tweet_text": "@politicalgeni11 what is Bitcoin?",
+    "reply": "@web3infraliason Bitcoin is a verified, decentralized digital currency that uses public-key cryptography for security, proof-of-work for consensus, and blockchain technology. It can be bought, accepted or mined, and stored in either a hot or cold wallet. Its value lies in its predictable supply, divisibility, capped supply of 21 million coins, and its ability to facilitate internet-native transfer. It is considered an essential component of Web3.0."
+  },
+  "1654868598941417472": {
+    "sender": "tehOwenMorris",
+    "subject": "arweave",
+    "tweet_text": "@politicalgeni11 how do I make money with Arweave?",
+    "reply": "@tehOwenMorris Arweave is a decentralized storage network that incentivizes data storage by miners with block rewards. If you want to make money with Arweave, you can become a miner and earn block rewards for storing data on the network. However, keep in mind that being a miner requires some initial investment and technical knowledge. Also, it's important to note that Arweave network is still growing and there are changing fee structures and historical trends."
+  },
+  "1654865130050711552": {
+    "sender": "tehOwenMorris",
+    "subject": "bitcoin mining",
+    "tweet_text": "@politicalgeni11 how can I mine bitcoin?",
+    "reply": "@tehOwenMorris Mining bitcoin requires specialized computer equipment, such as ASIC miners, to generate hashes and compete with other miners to discover new blocks. However, mining profitability is limited by electricity and hardware costs, especially for those with limited resources. To potentially earn bitcoin block rewards and participate in securing and maintaining the decentralized Bitcoin network, you can consider joining mining pools which share rewards according to each miner's contribution. Keep in mind that Bitcoin mining consumes vast amounts of energy, estimated to be approximately 131 TeraWatt hours (TWh) of electricity per year, and can have a significant environmen tal impact."
+  },
+  "1655005789155921920": {
+    "sender": "tehOwenMorris",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 What was the first part of my bitcoin related questions?",
+    "reply": "Not Replying."
+  },
+  "1655005322719940608": {
+    "sender": "tehOwenMorris",
+    "subject": null,
+    "tweet_text": "@politicalgeni11 What was the first thing that I asked you in this thread?",
+    "reply": "Not Replying."
+  },
+  "1655006227167068160": {
+    "sender": "tehOwenMorris",
+    "subject": "BTC",
+    "tweet_text": "@politicalgeni11 How do I sell my bitcoin for the best price?",
+    "reply": "@tehOwenMorris To sell your bitcoin for the best price, you can research and compare prices on different cryptocurrency exchanges. Choose a reputable exchange with a high trading volume to ensure liquidity and fair pricing. You can also consider peer-to-peer marketplaces or over-the-counter trading. It's always best to educate yourself and exercise caution when trading to avoid scams and ensure the security of your funds."
+  }
+}
