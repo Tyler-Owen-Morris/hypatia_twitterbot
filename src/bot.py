@@ -1,10 +1,9 @@
-from tweepy import OAuthHandler, Cursor, API
+from tweepy import OAuthHandler, API
 import openai
 import os
 import json
 from pathlib import Path
 from dotenv import load_dotenv
-import twitter_credentials as tc
 from time import sleep
 from datetime import datetime
 
@@ -13,13 +12,11 @@ envpath = Path('.') / '.env'
 load_dotenv(dotenv_path=envpath)
 
 # setup the openapi auth
-openai.api_key = tc.OPENAI_KEY
+openai.api_key = os.environ['OPENAI_KEY']
 
 auth = OAuthHandler(os.environ['CONSUMER_KEY'], os.environ['CONSUMER_SECRET'])
 auth.set_access_token(os.environ['ACCESS_TOKEN'],
                       os.environ['ACCESS_TOKEN_SECRET'])
-# auth = OAuthHandler(tc.CONSUMER_KEY, tc.CONSUMER_SECRET)
-# auth.set_access_token(tc.ACCESS_TOKEN, tc.ACCESS_TOKEN_SECRET)
 api = API(auth, wait_on_rate_limit=True)
 
 
@@ -45,13 +42,9 @@ def reply_to_mentions(client_info):
     data_ref = load_primed_data()
     # fetch reply history
     response = api.mentions_timeline(
-        count=200, tweet_mode="extended", since_id=1652826852988436481)
-    # Read the file data
-    # file_name = "data/sample_inputs.json"
-    # with open(file_name, "r") as json_file:
-    #     response = json.load(json_file)
+        count=200, tweet_mode="extended")
     for tweet in response:
-        # print(tweet, type(tweet))
+        #print(tweet, type(tweet))
         # we do this each loop so we can write at the end of the loop
         data = load_mentions_history()
         # Load data about this tweet from the Status object in the array returned
@@ -60,17 +53,13 @@ def reply_to_mentions(client_info):
         reply_user = tweet.__getattribute__('in_reply_to_user_id')
         send_user = tweet.__getattribute__('user')
         send_screenname = send_user.__getattribute__('screen_name')
-        # tid = tweet['id']
-        # ttext = tweet['full_text']
-        # send_user = tweet['user']
-        # send_screenname = tweet['screen_name']
+        reply_tweet = tweet.__getattribute__('in_reply_to_status_id')
+        print("reply tweet ID:", reply_tweet)
         # print(send_screenname)
-        print("mention:", ttext)
+        # print("mention:", ttext)
         at_person = "@"+send_screenname+" "
         if str(tid) not in data:
             # determine subject of tweet
-            for s in data_ref.keys():
-                print(s)
             subj = determine_tweet_subject(ttext, list(data_ref.keys()))
             mysubj = determine_subject(subj)
             # reply to the person
@@ -79,7 +68,7 @@ def reply_to_mentions(client_info):
                              "subject": mysubj, "tweet_text": ttext, 'reply': "Not Replying."}
             else:
                 # "@"+send_screenname+" "
-                reply = make_reply_tweet(ttext, mysubj)
+                reply = make_reply_tweet(ttext, mysubj, reply_tweet)
                 print("reply tweet:", reply)
                 if len(reply) > (280 - len(at_person)):
                     replies = split_tweet(
@@ -114,11 +103,19 @@ def determine_subject(subj):
     return None
 
 
-def make_reply_tweet(tweet, subj):
+def make_reply_tweet(tweet, subj, in_reply):
+    msg_load = [{"role": "system", "content": "You are a twitter bot. You will be fed all the relevant data you need on a subject, and a user tweet. you will reply with the most informative, helpful, and succinct response possible. reply with 'OK' if you understand."},
+                {"role": "assistant", "content": "OK"}]
+    if in_reply != None:
+        msg_history = load_message_history(in_reply)
+        msg_load += msg_history
     if subj != None:
         loaded_data = load_primed_data()[subj]
     else:
         loaded_data = ""
+    print("MESSAGE LOAD FOR MODEL PRE DATA ADD:\n", msg_load)
+    msg_load += [{"role": "system", "content": f"Data: {loaded_data}"},
+                 {"role": "user", "content": tweet}]
     completion = openai.ChatCompletion.create(
         model='gpt-3.5-turbo',
         messages=[{"role": "system", "content": "You are a twitter bot. You will be fed all the relevant data you need on a subject, and a user tweet. you will reply with the most informative, helpful, and succinct response possible. reply with 'OK' if you understand."},
@@ -130,6 +127,37 @@ def make_reply_tweet(tweet, subj):
     print("attempting to reply with primers:", loaded_data)
     print("response is: ", resp)
     return resp
+
+
+def load_message_history(in_reply):
+    ret = []
+    more = True
+    rplid = in_reply
+    my_id = api.verify_credentials().__getattribute__('id')
+    while more:
+        # get the tweet
+        response = api.get_status(id=rplid, tweet_mode="extended")
+        ttext = response.__getattribute__('full_text')
+        send_user = response.__getattribute__('user')
+        send_id = send_user.__getattribute__('id')
+        reply_id = response.__getattribute__('in_reply_to_status_id')
+        # parse the tweet into an object
+        tobj = {}
+        if send_id == my_id:
+            tobj['role'] = 'assistant'
+        else:
+            tobj["role"] = 'user'
+        tobj['content'] = ttext
+        # append the object to the return object
+        ret.append(tobj)
+        # determine if loop continues
+        if reply_id == None:
+            more = False
+        else:
+            rplid = reply_id
+    print("constructed history:", ret[::-1])
+    # the slicing reverses the array so that the tweets are in chronological order
+    return ret[::-1]
 
 
 def load_mentions_history():
@@ -168,24 +196,20 @@ def split_tweet(text, max_length=280):
     words = text.split()
     tweets = []
     current_tweet = ""
-
     for word in words:
         # If adding the word to the current tweet would exceed the max_length
         if len(current_tweet) + len(word) + 1 > max_length:
             # If the current tweet is not empty, add it to the tweets list
             if current_tweet:
                 tweets.append(current_tweet.strip())
-
             # Start a new tweet with the current word
             current_tweet = word
         else:
             # Otherwise, add the word to the current tweet
             current_tweet += " " + word
-
     # Add the last tweet to the tweets list, if not empty
     if current_tweet:
         tweets.append(current_tweet.strip())
-
     return tweets
 
 
