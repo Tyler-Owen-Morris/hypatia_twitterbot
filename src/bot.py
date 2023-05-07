@@ -54,9 +54,9 @@ def reply_to_mentions(client_info):
         send_user = tweet.__getattribute__('user')
         send_screenname = send_user.__getattribute__('screen_name')
         reply_tweet = tweet.__getattribute__('in_reply_to_status_id')
-        print("reply tweet ID:", reply_tweet)
-        # print(send_screenname)
-        # print("mention:", ttext)
+        #print("reply tweet ID:", reply_tweet)
+        print(send_screenname)
+        print("mention:", ttext)
         at_person = "@"+send_screenname+" "
         if str(tid) not in data:
             # determine subject of tweet
