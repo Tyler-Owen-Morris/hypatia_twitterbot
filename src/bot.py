@@ -7,13 +7,18 @@ from dotenv import load_dotenv
 from time import sleep
 from datetime import datetime
 
+# CONTROL PARAMETERS
+SEND_TWEETS = False
+LOOP_WAIT_TIME = 1  # in minutes
+ERROR_WAIT_TIME = .5  # in minutes
 
 envpath = Path('.') / '.env'
 load_dotenv(dotenv_path=envpath)
 
-# setup the openapi auth
+# setup the openai api
 openai.api_key = os.environ['OPENAI_KEY']
 
+# setup the Tweepy API
 auth = OAuthHandler(os.environ['CONSUMER_KEY'], os.environ['CONSUMER_SECRET'])
 auth.set_access_token(os.environ['ACCESS_TOKEN'],
                       os.environ['ACCESS_TOKEN_SECRET'])
@@ -27,11 +32,11 @@ def run_bot():
     while True:
         try:
             reply_to_mentions(client_info)
-            vocal_sleeper(1, "sleeping after replying")
+            vocal_sleeper(LOOP_WAIT_TIME, "sleeping after replying")
         except Exception as e:
             print("error'd out:", e)
             # wait 30 seconds and try again
-            vocal_sleeper(1, "Waiting to resume after error")
+            vocal_sleeper(ERROR_WAIT_TIME, "Waiting to resume after error")
             continue
 
 
@@ -40,9 +45,13 @@ def reply_to_mentions(client_info):
     my_id = client_info.__getattribute__('id')
     # load historical conversations from disk
     data_ref = load_primed_data()
+    latest_reply_id = get_latest_reply_id()
     # fetch reply history
-    response = api.mentions_timeline(
-        count=200, tweet_mode="extended", since_id=1655005322719940608)
+    if latest_reply_id != 1:
+        response = api.mentions_timeline(
+            count=200, tweet_mode="extended", since_id=latest_reply_id)
+    else:
+        response = api.mentions_timeline(count=200, tweet_mode="extended")
     for tweet in response:
         #print(tweet, type(tweet))
         # we do this each loop so we can write at the end of the loop
@@ -70,22 +79,25 @@ def reply_to_mentions(client_info):
                 # "@"+send_screenname+" "
                 reply = make_reply_tweet(ttext, mysubj, reply_tweet)
                 print("reply tweet:", reply)
-                if len(reply) > (280 - len(at_person)):
-                    replies = split_tweet(
-                        reply, max_length=(280 - len(at_person)))
-                    last_id = None
-                    for repl in replies:
-                        if last_id == None:
-                            status = api.update_status(
-                                at_person+repl, in_reply_to_status_id=tid)
-                            last_id = status.__getattribute__('id')
-                        else:
-                            status = api.update_status(
-                                at_person+repl, in_reply_to_status_id=last_id)
-                            last_id = status.__getattribute__('id')
+                if SEND_TWEETS:
+                    if len(reply) > (280 - len(at_person)):
+                        replies = split_tweet(
+                            reply, max_length=(280 - len(at_person)))
+                        last_id = None
+                        for repl in replies:
+                            if last_id == None:
+                                status = api.update_status(
+                                    at_person+repl, in_reply_to_status_id=tid)
+                                last_id = status.__getattribute__('id')
+                            else:
+                                status = api.update_status(
+                                    at_person+repl, in_reply_to_status_id=last_id)
+                                last_id = status.__getattribute__('id')
+                    else:
+                        api.update_status(
+                            at_person+repl, in_reply_to_status_id=tid)
                 else:
-                    api.update_status(
-                        at_person+repl, in_reply_to_status_id=tid)
+                    print("NOT SENDING - PARAMETER IS OFF")
                 data[tid] = {"sender": send_screenname,
                              "subject": mysubj, "tweet_text": ttext, 'reply': at_person+reply}
         else:
@@ -97,10 +109,18 @@ def reply_to_mentions(client_info):
 
 def determine_subject(subj):
     loaded = load_primed_data()
+    subj = subj.split(",")
+    accum = []
+    found = False
     for subject in list(loaded.keys()):
-        if subj.lower() in subject.lower() or subject.lower() in subj.lower():
-            return subject
-    return None
+        for sub in subj:
+            if sub.lower().replace(' ', '') in subject.lower() or subject.lower() in sub.lower().replace(' ', ''):
+                accum.append(subject)
+                found = True
+    if found:
+        return accum
+    else:
+        return None
 
 
 def make_reply_tweet(tweet, subj, in_reply):
@@ -109,11 +129,13 @@ def make_reply_tweet(tweet, subj, in_reply):
     if in_reply != None:
         msg_history = load_message_history(in_reply)
         msg_load += msg_history
+    loaded_data = ""
     if subj != None:
-        loaded_data = load_primed_data()[subj]
-    else:
-        loaded_data = ""
-    print("MESSAGE LOAD FOR MODEL PRE DATA ADD:\n", msg_load)
+        load = load_primed_data()
+        for sub in subj:
+            loaded_data += load[sub]
+    print("loaded data after multiload:", loaded_data)
+    #print("MESSAGE LOAD FOR MODEL PRE DATA ADD:\n", msg_load)
     msg_load += [{"role": "system", "content": f"Data: {loaded_data}"},
                  {"role": "user", "content": tweet}]
     completion = openai.ChatCompletion.create(
@@ -124,7 +146,7 @@ def make_reply_tweet(tweet, subj, in_reply):
                   {"role": "user", "content": tweet}]
     )
     resp = completion.choices[0].message.content
-    print("attempting to reply with primers:", loaded_data)
+    #print("attempting to reply with primers:", loaded_data)
     print("response is: ", resp)
     return resp
 
@@ -171,6 +193,16 @@ def load_mentions_history():
         data = json.load(json_file)
     # returns a dictionary of the historical tweets
     return data
+
+
+def get_latest_reply_id():
+    data = load_mentions_history()
+    sorted_ids = sorted(list(data.keys()))
+    print("sorted IDs:", sorted_ids)
+    if len(sorted_ids) > 0:
+        return sorted_ids[-1]
+    else:
+        return 1
 
 
 def load_primed_data():
@@ -244,7 +276,7 @@ def determine_tweet_subject(tweet, subjects):
     print("eligible subjects:", subjs)
     completion = openai.ChatCompletion.create(
         model='gpt-3.5-turbo',
-        messages=[{"role": "system", "content": f"You are a classification bot. The user will feed you a tweet and you will return which subject it belongs to with ONLY the name of the subject. The only eligible subjects are: {subjs}. you will not elaborate. you will not add extra words. You will JUST reply with the single subject. The subject you reply with MUST be in the provided list: {subjs}. You will not invent new subjects- the subject will ONLY be one of these: {subjs}. If the tweet is not related to any of these subjects you will reply with the string 'None'. Reply with 'ok' if you understand."},
+        messages=[{"role": "system", "content": f"You are a classification bot. The user will feed you a tweet and you will return which subjects it relates to with ONLY the name of the subjects. The only eligible subjects are: {subjs}. you will not elaborate. you will not add extra words. You will JUST reply with the single subject or comma separated list of subjects. The subject(s) you reply with MUST be in the provided list: {subjs}. You will not invent new subjects- the subject(s) will ONLY be one of these: {subjs}. If the tweet is not related to any of these subjects you will reply with the string 'None'. Reply with 'OK' if you understand."},
                   {"role": "assistant", "content": "OK"},
                   {"role": "user", "content": tweet}]
     )
