@@ -42,7 +42,7 @@ def reply_to_mentions(client_info):
     data_ref = load_primed_data()
     # fetch reply history
     response = api.mentions_timeline(
-        count=200, tweet_mode="extended")
+        count=200, tweet_mode="extended", since_id=1655005322719940608)
     for tweet in response:
         #print(tweet, type(tweet))
         # we do this each loop so we can write at the end of the loop
