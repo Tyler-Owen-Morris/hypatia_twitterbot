@@ -6,11 +6,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 from time import sleep
 from datetime import datetime
+from transformers import GPT2Tokenizer
 
 # CONTROL PARAMETERS
 SEND_TWEETS = False
 LOOP_WAIT_TIME = 1  # in minutes
-ERROR_WAIT_TIME = .5  # in minutes
+ERROR_WAIT_TIME = 1  # in minutes
 
 envpath = Path('.') / '.env'
 load_dotenv(dotenv_path=envpath)
@@ -23,6 +24,9 @@ auth = OAuthHandler(os.environ['CONSUMER_KEY'], os.environ['CONSUMER_SECRET'])
 auth.set_access_token(os.environ['ACCESS_TOKEN'],
                       os.environ['ACCESS_TOKEN_SECRET'])
 api = API(auth, wait_on_rate_limit=True)
+
+# setup tokenizer for counting tokens
+tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
 
 
 def run_bot():
@@ -124,26 +128,35 @@ def determine_subject(subj):
 
 
 def make_reply_tweet(tweet, subj, in_reply):
-    msg_load = [{"role": "system", "content": "You are a twitter bot. You will be fed all the relevant data you need on a subject, and a user tweet. you will reply with the most informative, helpful, and succinct response possible. reply with 'OK' if you understand."},
+    msg_load = [{"role": "system", "content": "you are "Web3 Infrastructure Liaison for Leveraging Optimized Wisdom", or Willow, a twitter chatbot powered by GPT. Your job is to answer questions about some web3 protocols you have been specifically trained on. Other web3-related subjects you will not opine about, because there's a lot of scams and fraud out there, and you don't want to contribute to it. You will be friendly and present a POV of advocacy for these protocols to be widely adopted because of the many ways they can improve people's lives. You were programmed and trained by the Web3 Working Group (@web3wg on twitter), a 501c3 nonprofit organization providing education about how web3 is transforming the infrastructure of the web, replacing closed platforms with open protocols, which has a particular focus on educating about Decentralized Infrastructure Protocols (sometimes called DePIN). You may only provide specific numbers or facts if you find them explicitly within the prompt data you are provided, you will not make up information you have not explicitly been provided with. Reply with 'OK' if you understand."},
                 {"role": "assistant", "content": "OK"}]
     if in_reply != None:
         msg_history = load_message_history(in_reply)
         msg_load += msg_history
     loaded_data = ""
     if subj != None:
-        load = load_primed_data()
+        if len(subj) > 1:
+            load = load_primed_data(long=True)
+        else:
+            load = load_primed_data(long=False)
         for sub in subj:
-            loaded_data += load[sub]
-    print("loaded data after multiload:", loaded_data)
-    #print("MESSAGE LOAD FOR MODEL PRE DATA ADD:\n", msg_load)
+            loaded_data += load[sub]+" "
+    # print("loaded data after multiload:", loaded_data)
+    # print("MESSAGE LOAD FOR MODEL PRE DATA ADD:\n", msg_load)
     msg_load += [{"role": "system", "content": f"Data: {loaded_data}"},
                  {"role": "user", "content": tweet}]
+    count = count_conversation_tokens(msg_load)
+    print("token count:", count)
+    # completion = openai.ChatCompletion.create(
+    #     model='gpt-3.5-turbo',
+    #     messages=[{"role": "system", "content": "You are a twitter bot. You will be fed all the relevant data you need on a subject, and a user tweet. you will reply with the most informative, helpful, and succinct response possible. reply with 'OK' if you understand."},
+    #               {"role": "assistant", "content": "OK"},
+    #               {"role": "system", "content": f"Data: {loaded_data}"},
+    #               {"role": "user", "content": tweet}]
+    # )
     completion = openai.ChatCompletion.create(
         model='gpt-3.5-turbo',
-        messages=[{"role": "system", "content": "You are a twitter bot. You will be fed all the relevant data you need on a subject, and a user tweet. you will reply with the most informative, helpful, and succinct response possible. reply with 'OK' if you understand."},
-                  {"role": "assistant", "content": "OK"},
-                  {"role": "system", "content": f"Data: {loaded_data}"},
-                  {"role": "user", "content": tweet}]
+        messages=msg_load
     )
     resp = completion.choices[0].message.content
     #print("attempting to reply with primers:", loaded_data)
@@ -205,8 +218,11 @@ def get_latest_reply_id():
         return 1
 
 
-def load_primed_data():
-    file_name = "data/primed_data.json"
+def load_primed_data(long=False):
+    if long:
+        file_name = "data/primed_data_large.json"
+    else:
+        file_name = "data/primed_data.json"
     try:
         # Read the file data
         with open(file_name, "r") as json_file:
@@ -283,6 +299,17 @@ def determine_tweet_subject(tweet, subjects):
     resp = completion.choices[0].message.content
     print("bot thinks this tweet is to do with this subject:", resp)
     return resp
+
+
+def count_conversation_tokens(conversation):
+    total_tokens = 0
+    # print(conversation)
+    for message in conversation:
+        # print(message)
+        # print(type(message))
+        tokens = tokenizer.tokenize(message['content'])
+        total_tokens += len(tokens) + 3
+    return total_tokens
 
 
 def vocal_sleeper(sleeptime, wait_reason):
