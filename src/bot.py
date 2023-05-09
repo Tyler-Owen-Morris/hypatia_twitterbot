@@ -10,11 +10,11 @@ from datetime import datetime
 from transformers import GPT2Tokenizer
 
 # CONTROL PARAMETERS
-SEND_TWEETS = False
+SEND_TWEETS = True
 LOOP_WAIT_TIME = 1  # in minutes
 ERROR_WAIT_TIME = 1  # in minutes
 
-envpath = Path('.') / '.env2'
+envpath = Path('.') / '.env'
 load_dotenv(dotenv_path=envpath)
 
 # setup the openai api
@@ -110,7 +110,7 @@ def reply_to_mentions():
                         for repl in replies:
                             if last_id == None:
                                 status = client.create_tweet(
-                                    text=repl, in_reply_to_tweet_id=tid)
+                                    text=at_person+repl, in_reply_to_tweet_id=tid)
                                 print("status data:", status.data)
                                 last_id = status.data['id']
                             else:
@@ -120,7 +120,7 @@ def reply_to_mentions():
                                 last_id = status.data['id']
                     else:
                         client.create_tweet(
-                            text=repl, in_reply_to_tweet_id=tid)
+                            text=at_person+repl, in_reply_to_tweet_id=tid)
                 else:
                     print("NOT SENDING - PARAMETER IS OFF")
                 data[tid] = {"sender": send_screenname,
