@@ -1,4 +1,5 @@
-from tweepy import OAuthHandler, API
+#from tweepy import OAuthHandler, API, Client
+import tweepy
 import openai
 import os
 import json
@@ -13,29 +14,31 @@ SEND_TWEETS = False
 LOOP_WAIT_TIME = 1  # in minutes
 ERROR_WAIT_TIME = 1  # in minutes
 
-envpath = Path('.') / '.env'
+envpath = Path('.') / '.env2'
 load_dotenv(dotenv_path=envpath)
 
 # setup the openai api
 openai.api_key = os.environ['OPENAI_KEY']
 
 # setup the Tweepy API
-auth = OAuthHandler(os.environ['CONSUMER_KEY'], os.environ['CONSUMER_SECRET'])
-auth.set_access_token(os.environ['ACCESS_TOKEN'],
-                      os.environ['ACCESS_TOKEN_SECRET'])
-api = API(auth, wait_on_rate_limit=True)
+# auth = OAuthHandler(os.environ['CONSUMER_KEY'], os.environ['CONSUMER_SECRET'])
+# auth.set_access_token(os.environ['ACCESS_TOKEN'],
+#                       os.environ['ACCESS_TOKEN_SECRET'])
+# api = API(auth, wait_on_rate_limit=True)
+client = tweepy.Client(os.environ['BEARER_TOKEN'], os.environ['CONSUMER_KEY'],
+                       os.environ['CONSUMER_SECRET'], os.environ['ACCESS_TOKEN'], os.environ['ACCESS_TOKEN_SECRET'])
 
 # setup tokenizer for counting tokens
 tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
 
 
 def run_bot():
-    client_info = api.verify_credentials()
-    client_id = client_info.__getattribute__('id')
-    print("my ID is:", client_id)
+    # client_info = api.verify_credentials()
+    # client_id = client_info.__getattribute__('id')
+    # print("my ID is:", client_id)
     while True:
         try:
-            reply_to_mentions(client_info)
+            reply_to_mentions()
             vocal_sleeper(LOOP_WAIT_TIME, "sleeping after replying")
         except Exception as e:
             print("error'd out:", e)
@@ -44,44 +47,59 @@ def run_bot():
             continue
 
 
-def reply_to_mentions(client_info):
+def reply_to_mentions():
     # load info about who I am
-    my_id = client_info.__getattribute__('id')
+    # my_id = client_info.__getattribute__('id')
+    client_info = client.get_me()
+    print(client_info)
+    my_id = client_info.data.id
+    print("my ID:", my_id)
     # load historical conversations from disk
     data_ref = load_primed_data()
     latest_reply_id = get_latest_reply_id()
     # fetch reply history
-    if latest_reply_id != 1:
-        response = api.mentions_timeline(
-            count=200, tweet_mode="extended", since_id=latest_reply_id)
-    else:
-        response = api.mentions_timeline(count=200, tweet_mode="extended")
-    for tweet in response:
-        #print(tweet, type(tweet))
+    # if latest_reply_id != 1:
+    #     response = api.mentions_timeline(
+    #         count=200, tweet_mode="extended", since_id=latest_reply_id)
+    # else:
+    #     response = api.mentions_timeline(count=200, tweet_mode="extended")
+    response = client.get_users_mentions(
+        my_id, max_results=5, expansions=['author_id', 'referenced_tweets.id', 'in_reply_to_user_id'])
+    # response = client.get_home_timeline()
+    for tweet in response.data:
+        print(tweet, type(tweet))
         # we do this each loop so we can write at the end of the loop
         data = load_mentions_history()
-        # Load data about this tweet from the Status object in the array returned
-        tid = tweet.__getattribute__('id')
-        ttext = tweet.__getattribute__('full_text')
-        reply_user = tweet.__getattribute__('in_reply_to_user_id')
-        send_user = tweet.__getattribute__('user')
-        send_screenname = send_user.__getattribute__('screen_name')
-        reply_tweet = tweet.__getattribute__('in_reply_to_status_id')
-        #print("reply tweet ID:", reply_tweet)
-        print(send_screenname)
-        print("mention:", ttext)
-        at_person = "@"+send_screenname+" "
+        tid = tweet.id
+
         if str(tid) not in data:
+            # Load data about this tweet from the Status object in the array returned
+            ttext = tweet.text
+            # send_user = tweet.__getattribute__('user')
+            # send_screenname = send_user.__getattribute__('screen_name')
+            author_id = tweet.author_id
+            print("author_ID:", author_id)
+            sender_lookup = client.get_user(id=author_id)
+            print("senduser:", sender_lookup)
+            send_screenname = sender_lookup.data.username
+            print("senderScreenname:", send_screenname)
+            # reply_tweet = tweet.__getattribute__('in_reply_to_status_id')
+            # referenced_tweets = tweet.referenced_tweets.id
+            # print("referenced tweets ID:", referenced_tweets)
+            print(send_screenname)
+            print("mention:", ttext)
+            at_person = "@"+send_screenname+" "
             # determine subject of tweet
             subj = determine_tweet_subject(ttext, list(data_ref.keys()))
             mysubj = determine_subject(subj)
+
             # reply to the person
             if mysubj == None:
-                data[tid] = {"sender": send_screenname,
+                data[tid] = {"sender": author_id,
                              "subject": mysubj, "tweet_text": ttext, 'reply': "Not Replying."}
             else:
                 # "@"+send_screenname+" "
-                reply = make_reply_tweet(ttext, mysubj, reply_tweet)
+                reply = make_reply_tweet(ttext, mysubj)
                 print("reply tweet:", reply)
                 if SEND_TWEETS:
                     if len(reply) > (280 - len(at_person)):
@@ -90,16 +108,18 @@ def reply_to_mentions(client_info):
                         last_id = None
                         for repl in replies:
                             if last_id == None:
-                                status = api.update_status(
-                                    at_person+repl, in_reply_to_status_id=tid)
-                                last_id = status.__getattribute__('id')
+                                status = client.create_tweet(
+                                    text=at_person+repl, in_reply_to_tweet_id=tid)
+                                print("status data:", status.data)
+                                last_id = status.data['id']
                             else:
-                                status = api.update_status(
-                                    at_person+repl, in_reply_to_status_id=last_id)
-                                last_id = status.__getattribute__('id')
+                                status = client.create_tweet(
+                                    text=at_person+repl, in_reply_to_tweet_id=last_id)
+                                print("status data:", status.data)
+                                last_id = status.data['id']
                     else:
-                        api.update_status(
-                            at_person+repl, in_reply_to_status_id=tid)
+                        client.create_tweet(
+                            text=at_person+repl, in_reply_to_tweet_id=tid)
                 else:
                     print("NOT SENDING - PARAMETER IS OFF")
                 data[tid] = {"sender": send_screenname,
@@ -127,7 +147,7 @@ def determine_subject(subj):
         return None
 
 
-def make_reply_tweet(tweet, subj, in_reply):
+def make_reply_tweet(tweet, subj, in_reply=None):
     msg_load = [{"role": "system", "content": "you are 'Web3 Infrastructure Liaison for Leveraging Optimized Wisdom', or Willow, a twitter chatbot powered by GPT. Your job is to answer questions about some web3 protocols you have been specifically trained on. Other web3-related subjects you will not opine about, because there's a lot of scams and fraud out there, and you don't want to contribute to it. You will be friendly and present a POV of advocacy for these protocols to be widely adopted because of the many ways they can improve people's lives. You were programmed and trained by the Web3 Working Group (@web3wg on twitter), a 501c3 nonprofit organization providing education about how web3 is transforming the infrastructure of the web, replacing closed platforms with open protocols, which has a particular focus on educating about Decentralized Infrastructure Protocols (sometimes called DePIN). You may only provide specific numbers or facts if you find them explicitly within the prompt data you are provided, you will not make up information you have not explicitly been provided with. Reply with 'OK' if you understand."},
                 {"role": "assistant", "content": "OK"}]
     if in_reply != None:
@@ -211,7 +231,7 @@ def load_mentions_history():
 def get_latest_reply_id():
     data = load_mentions_history()
     sorted_ids = sorted(list(data.keys()))
-    print("sorted IDs:", sorted_ids)
+    # print("sorted IDs:", sorted_ids)
     if len(sorted_ids) > 0:
         return sorted_ids[-1]
     else:
