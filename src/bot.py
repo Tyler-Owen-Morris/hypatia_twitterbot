@@ -10,21 +10,17 @@ from datetime import datetime
 from transformers import GPT2Tokenizer
 
 # CONTROL PARAMETERS
-SEND_TWEETS = True
+SEND_TWEETS = False
 LOOP_WAIT_TIME = 1  # in minutes
 ERROR_WAIT_TIME = 1  # in minutes
 
-envpath = Path('.') / '.env'
+envpath = Path('.') / '.env2'
 load_dotenv(dotenv_path=envpath)
 
 # setup the openai api
 openai.api_key = os.environ['OPENAI_KEY']
 
 # setup the Tweepy API
-# auth = OAuthHandler(os.environ['CONSUMER_KEY'], os.environ['CONSUMER_SECRET'])
-# auth.set_access_token(os.environ['ACCESS_TOKEN'],
-#                       os.environ['ACCESS_TOKEN_SECRET'])
-# api = API(auth, wait_on_rate_limit=True)
 client = tweepy.Client(os.environ['BEARER_TOKEN'], os.environ['CONSUMER_KEY'],
                        os.environ['CONSUMER_SECRET'], os.environ['ACCESS_TOKEN'], os.environ['ACCESS_TOKEN_SECRET'])
 
