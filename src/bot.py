@@ -10,7 +10,7 @@ from datetime import datetime
 from transformers import GPT2Tokenizer
 
 # CONTROL PARAMETERS
-SEND_TWEETS = False
+SEND_TWEETS = True
 LOOP_WAIT_TIME = 1  # in minutes
 ERROR_WAIT_TIME = 1  # in minutes
 
@@ -55,14 +55,14 @@ def reply_to_mentions():
     latest_reply_id, latest_reply_text = get_latest_reply()
     print("most recent ID:", latest_reply_id)
     # fetch reply history
-    # if latest_reply_id != 1:
-    #     response = api.mentions_timeline(
-    #         count=200, tweet_mode="extended", since_id=latest_reply_id)
-    # else:
-    #     response = api.mentions_timeline(count=200, tweet_mode="extended")
-    response = client.get_users_mentions(
-        my_id, max_results=5, expansions=['author_id', 'referenced_tweets.id', 'in_reply_to_user_id'])
-    # response = client.get_home_timeline()
+    if latest_reply_id != 1:
+        response = client.get_users_mentions(my_id, max_results=5, expansions=[
+                                             'author_id', 'referenced_tweets.id', 'in_reply_to_user_id'], since_id=latest_reply_id)
+    else:
+        response = client.get_users_mentions(my_id, max_results=5, expansions=[
+                                             'author_id', 'referenced_tweets.id', 'in_reply_to_user_id'])
+
+    print(response)
     for tweet in response.data:
         print(tweet)
         # we do this each loop so we can write at the end of the loop
@@ -72,8 +72,6 @@ def reply_to_mentions():
         if str(tid) not in data:
             # Load data about this tweet from the Status object in the array returned
             ttext = tweet.text
-            # send_user = tweet.__getattribute__('user')
-            # send_screenname = send_user.__getattribute__('screen_name')
             author_id = tweet.author_id
             print("author_ID:", author_id)
             sender_lookup = client.get_user(id=author_id)
