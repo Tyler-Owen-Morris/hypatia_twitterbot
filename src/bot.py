@@ -140,7 +140,8 @@ def determine_subject(subj):
     found = False
     for subject in list(loaded.keys()):
         for sub in subj:
-            if sub.lower().replace(' ', '') in subject.lower() or subject.lower() in sub.lower().replace(' ', ''):
+            print("comparing:", subject, "|", sub)
+            if sub.lower().replace(' ', '') in subject.lower().replace(" ", "") or subject.lower().replace(' ', '') in sub.lower().replace(' ', ''):
                 accum.append(subject)
                 found = True
     if found:
@@ -169,13 +170,7 @@ def make_reply_tweet(tweet, subj, in_reply=None):
                  {"role": "user", "content": tweet}]
     count = count_conversation_tokens(msg_load)
     print("token count:", count)
-    # completion = openai.ChatCompletion.create(
-    #     model='gpt-3.5-turbo',
-    #     messages=[{"role": "system", "content": "You are a twitter bot. You will be fed all the relevant data you need on a subject, and a user tweet. you will reply with the most informative, helpful, and succinct response possible. reply with 'OK' if you understand."},
-    #               {"role": "assistant", "content": "OK"},
-    #               {"role": "system", "content": f"Data: {loaded_data}"},
-    #               {"role": "user", "content": tweet}]
-    # )
+
     completion = openai.ChatCompletion.create(
         model='gpt-3.5-turbo',
         messages=msg_load
