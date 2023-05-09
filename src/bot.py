@@ -56,7 +56,8 @@ def reply_to_mentions():
     print("my ID:", my_id)
     # load historical conversations from disk
     data_ref = load_primed_data()
-    latest_reply_id = get_latest_reply_id()
+    latest_reply_id, latest_reply_text = get_latest_reply()
+    print("most recent ID:", latest_reply_id)
     # fetch reply history
     # if latest_reply_id != 1:
     #     response = api.mentions_timeline(
@@ -67,7 +68,7 @@ def reply_to_mentions():
         my_id, max_results=5, expansions=['author_id', 'referenced_tweets.id', 'in_reply_to_user_id'])
     # response = client.get_home_timeline()
     for tweet in response.data:
-        print(tweet, type(tweet))
+        print(tweet)
         # we do this each loop so we can write at the end of the loop
         data = load_mentions_history()
         tid = tweet.id
@@ -109,23 +110,24 @@ def reply_to_mentions():
                         for repl in replies:
                             if last_id == None:
                                 status = client.create_tweet(
-                                    text=at_person+repl, in_reply_to_tweet_id=tid)
+                                    text=repl, in_reply_to_tweet_id=tid)
                                 print("status data:", status.data)
                                 last_id = status.data['id']
                             else:
                                 status = client.create_tweet(
-                                    text=at_person+repl, in_reply_to_tweet_id=last_id)
+                                    text=repl, in_reply_to_tweet_id=last_id)
                                 print("status data:", status.data)
                                 last_id = status.data['id']
                     else:
                         client.create_tweet(
-                            text=at_person+repl, in_reply_to_tweet_id=tid)
+                            text=repl, in_reply_to_tweet_id=tid)
                 else:
                     print("NOT SENDING - PARAMETER IS OFF")
                 data[tid] = {"sender": send_screenname,
                              "subject": mysubj, "tweet_text": ttext, 'reply': at_person+reply}
         else:
-            #print("we have already replied to this according to history")
+            print(
+                f"we have already replied to this according to history: {tweet}")
             pass
         # save the conversation
         write_mentions_history(data)
@@ -148,7 +150,7 @@ def determine_subject(subj):
 
 
 def make_reply_tweet(tweet, subj, in_reply=None):
-    msg_load = [{"role": "system", "content": "you are 'Web3 Infrastructure Liaison for Leveraging Optimized Wisdom', or Willow, a twitter chatbot powered by GPT. Your job is to answer questions about some web3 protocols you have been specifically trained on. Other web3-related subjects you will not opine about, because there's a lot of scams and fraud out there, and you don't want to contribute to it. You will be friendly and present a POV of advocacy for these protocols to be widely adopted because of the many ways they can improve people's lives. You were programmed and trained by the Web3 Working Group (@web3wg on twitter), a 501c3 nonprofit organization providing education about how web3 is transforming the infrastructure of the web, replacing closed platforms with open protocols, which has a particular focus on educating about Decentralized Infrastructure Protocols (sometimes called DePIN). You may only provide specific numbers or facts if you find them explicitly within the prompt data you are provided, you will not make up information you have not explicitly been provided with. Reply with 'OK' if you understand."},
+    msg_load = [{"role": "system", "content": "you are 'Web3 Infrastructure Liaison for Leveraging Optimized Wisdom', aka: Willow, a twitter chatbot powered by GPT. Your job is to answer questions about only the web3 protocols you have been specifically trained on. Other web3-related subjects you will not comment on. You will be friendly and present a POV of advocacy for these protocols to be widely adopted because of the many ways they can improve people's lives. You were programmed and trained by the Web3 Working Group (@web3wg on twitter), a 501c3 nonprofit organization providing education about how web3 is transforming the infrastructure of the web, replacing closed platforms with open protocols, which has a particular focus on educating about Decentralized Infrastructure Protocols (sometimes called DePIN). You may only provide specific numbers or facts if you find them explicitly within the prompt data you are provided, you will not make up information you have not explicitly been provided with. You will be as succinct and accurate as possible. the more words you use to reply the worse. try to keep your replies under 240 characters. Reply with 'OK' if you understand."},
                 {"role": "assistant", "content": "OK"}]
     if in_reply != None:
         msg_history = load_message_history(in_reply)
@@ -228,14 +230,15 @@ def load_mentions_history():
     return data
 
 
-def get_latest_reply_id():
+def get_latest_reply():
     data = load_mentions_history()
     sorted_ids = sorted(list(data.keys()))
     # print("sorted IDs:", sorted_ids)
+    print("last reply tweet loaded:", data[sorted_ids[-1]]['reply'])
     if len(sorted_ids) > 0:
-        return sorted_ids[-1]
+        return sorted_ids[-1], data[sorted_ids[-1]]['reply']
     else:
-        return 1
+        return 1, ""
 
 
 def load_primed_data(long=False):
