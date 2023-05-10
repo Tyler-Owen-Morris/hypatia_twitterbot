@@ -11,8 +11,8 @@ from transformers import GPT2Tokenizer
 
 # CONTROL PARAMETERS
 SEND_TWEETS = True
-LOOP_WAIT_TIME = 1  # in minutes
-ERROR_WAIT_TIME = 1  # in minutes
+LOOP_WAIT_TIME = 4  # in minutes
+ERROR_WAIT_TIME = 5  # in minutes
 
 envpath = Path('.') / '.env2'
 load_dotenv(dotenv_path=envpath)
@@ -29,23 +29,26 @@ tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
 
 
 def run_bot():
-    # client_info = api.verify_credentials()
-    # client_id = client_info.__getattribute__('id')
-    # print("my ID is:", client_id)
     while True:
         try:
             reply_to_mentions()
             vocal_sleeper(LOOP_WAIT_TIME, "sleeping after replying")
+        except tweepy.errors.TweepyException as e:
+            print("Rate Lmited:", e)
+            # wait 30 seconds and try again
+            if e.response.status_code == 429:
+                vocal_sleeper(15, "Waiting for frequency to lift.")
+            else:
+                vocal_sleeper(ERROR_WAIT_TIME, "Waiting to resume after error")
+            continue
         except Exception as e:
             print("error'd out:", e)
-            # wait 30 seconds and try again
             vocal_sleeper(ERROR_WAIT_TIME, "Waiting to resume after error")
             continue
 
 
 def reply_to_mentions():
     # load info about who I am
-    # my_id = client_info.__getattribute__('id')
     client_info = client.get_me()
     print(client_info)
     my_id = client_info.data.id
